@@ -1,0 +1,138 @@
+{
+  "id": "8487f430-a2a7-11e7-bfce-1bcbeba500de",
+  "name": "CoverityBuild",
+  "friendlyName": "Coverity Build and Analysis",
+  "description": "Tasks for building and analysing C# code using Coverity Static Analysis",
+  "author": "Esben Bach",
+  "helpMarkDown": "Replace with markdown to show in help",
+  "category": "Build",
+  "visibility": [
+    "Build"
+  ],
+  "demands": [],
+  "version": {
+    "Major": "0",
+    "Minor": "0",
+    "Patch": "1"
+  },
+  "minimumAgentVersion": "1.95.0",
+  "instanceNameFormat": "CoverityBuild $(message)",
+  "inputs": [
+    {
+      "name": "solution",
+      "type": "filePath",
+      "label": "Solution",
+      "defaultValue": "",
+      "required": true,
+      "helpMarkDown": "Relative path from repo root of the solution(s) or MSBuild project to run."
+    },
+    {
+      "name": "configuration",
+      "type": "string",
+      "label": "Configuration",
+      "defaultValue": "",
+      "required": false,
+      "helpMarkDown": "Build configuration passed to msbuild"
+    },
+    {
+      "name": "platform",
+      "type": "string",
+      "label": "Platform",
+      "defaultValue": "",
+      "required": false,
+      "helpMarkDown": "Build platform passed to msbuild"
+    },
+    {
+      "name": "cwd",
+      "type": "filePath",
+      "label": "Working Directory",
+      "defaultValue": "",
+      "required": false,
+      "helpMarkDown": "Current working directory where CoverityBuild is run."
+    },
+    {
+      "name": "stream",
+      "label": "Stream",
+      "type": "string",
+      "defaultValue": "",
+      "required": true,
+      "helpMarkDown": "The name of the stream on the Coverity server where result will be published"
+    },
+    {
+      "name": "hostname",
+      "label": "Hostname",
+      "type": "string",
+      "defaultValue": "",
+      "required": true,
+      "helpMarkDown": "The DNS name or IP of the host containing the Coverity service"
+    },
+    {
+      "name": "portNumber",
+      "label": " Portnumber",
+      "type": "string",
+      "defaultValue": "8443",
+      "required": false,
+      "helpMarkDown": "The DNS name or IP of the host containing the Coverity service"
+    },
+    {
+      "name": "coverityBinPath",
+      "label": "Coverity Binaries Path",
+      "type": "filePath",
+      "defaultValue": "",
+      "required": false,
+      "helpMarkDown": "Path to the coverity static analysis bin folder where cov-build etc resides. If left blank it is assumed the utilities are available in the path"
+    },
+    {
+      "name": "authKeyFile",
+      "type": "filePath",
+      "label": "Coverity Authentication Key File",
+      "required": false,
+      "helpMarkDown": "Path to the key file that allows the analysis to commit defects to the coverity server"
+    },
+    {
+      "name": "msg",
+      "type": "string",
+      "label": "Message",
+      "defaultValue": "Hello World",
+      "required": true,
+      "helpMarkDown": "Message to echo out"
+    },
+    {
+      "name": "idir",
+      "type": "filePath",
+      "label": "Intermediate Directory",
+      "defaultValue": "cov-intermediate",
+      "required": false,
+      "helpMarkDown": "Directory to look for and place intermediate files, default to working directory/cov-intermediate"
+    },
+    {
+      "name": "covbuildargs",
+      "type": "cov-build arguments",
+      "label": "Arguments for cov-build",
+      "defaultValue": "",
+      "required": false,
+      "helpMarkDOwn": "Additional arguments to pass to the cov-build command"
+    },
+    {
+      "name": "covanalyzeargs",
+      "type": "cov-analyze arguments",
+      "label": "Arguments for cov-analyze",
+      "defaultValue": "",
+      "required": false,
+      "helpMarkDOwn": "Additional arguments to pass to the cov-analyze command"
+    },
+    {
+      "name": "covcommitargs",
+      "type": "cov-commit-defects arguments",
+      "label": "Arguments for cov-commit-defects",
+      "defaultValue": "",
+      "required": false,
+      "helpMarkDOwn": "Additional arguments to pass to the cov-commit-defects command"
+    }
+  ],
+  "execution": {
+    "PowerShell3": {
+      "target": "CoverityBuild.ps1"
+    }
+  }
+}
