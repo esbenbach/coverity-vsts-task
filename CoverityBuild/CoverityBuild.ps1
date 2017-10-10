@@ -43,7 +43,7 @@ try {
 
 	$covAnalyzeCmd = "$covBinPath/cov-analyze.exe"
 	Write-Verbose "Executing Cov-Analyze Command: $covAnalyzeCmd"
-	& $covAnalyzeCmd --dir "$intermediate" --strip-path "$cwd"
+	& $covAnalyzeCmd --all --webapp-security --webapp-security-preview --enable XML_INJECTION --dir "$intermediate" --strip-path "$cwd"
 
 	$covCommitCmd = "$covBinPath/cov-commit-defects.exe"
 	Write-Verbose "Excuting Cov-Commit-Defects Command: $covCommitCmd"

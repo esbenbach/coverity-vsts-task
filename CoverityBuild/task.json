@@ -11,9 +11,9 @@
   ],
   "demands": [],
   "version": {
-    "Major": "0",
+    "Major": "1",
     "Minor": "0",
-    "Patch": "1"
+    "Patch": "0"
   },
   "minimumAgentVersion": "1.95.0",
   "instanceNameFormat": "CoverityBuild $(message)",
@@ -88,14 +88,6 @@
       "label": "Coverity Authentication Key File",
       "required": false,
       "helpMarkDown": "Path to the key file that allows the analysis to commit defects to the coverity server"
-    },
-    {
-      "name": "msg",
-      "type": "string",
-      "label": "Message",
-      "defaultValue": "Hello World",
-      "required": true,
-      "helpMarkDown": "Message to echo out"
     },
     {
       "name": "idir",
