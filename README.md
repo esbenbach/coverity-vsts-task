@@ -8,8 +8,8 @@ Feel free to make comments, suggestion, PRs etc, but don't expect too much in th
 * Install Node.js
 * Install the tfx-cli using `npm install -g tfx-cli`
 * Clone the repository `git clone https://github.com/esbenbach/coverity-vsts-task.git`
-* (Optional) login to vsts with tfx `tfx login -u https://youraccount.visualstudio.com/DefaultCollection -t "PERSONALACCESSTOKEN"` - its possible to use username or password instead of the access token read the `tfx --help` to figure out how
-* Upload the task to vsts `tfx build tasks upload --task-path ./coverity-vsts-task`
+* Login to vsts with tfx `tfx login -u https://youraccount.visualstudio.com/DefaultCollection -t "PERSONALACCESSTOKEN"` - its possible to use username or password instead of the access token read the `tfx --help` to figure out how
+* Upload the task to vsts `tfx build tasks upload --task-path ./coverity-vsts-task/CoverityBuild`
 
 # Using the Coverity Build Task
 * Edit a build definition and add the task "Coverity Build"
