@@ -27,11 +27,13 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Content Include="EchoArgs.exe" />
     <Content Include="icon.png" />
     <Content Include="task.json" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="CoverityBuild.ps1" />
+    <Compile Include="Functions.ps1" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <Target Name="Build" />
