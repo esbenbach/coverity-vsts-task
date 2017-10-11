@@ -16,16 +16,26 @@ try {
 	[string]$authKeyFile = Get-VstsInput -Name authKeyFile
 	[string]$intermediate = Get-VstsInput -Name idir
 	[string]$stream = Get-VstsInput -Name stream
+	[string]$covbuildargs = Get-VstsInput -Name covbuildargs
+	[string]$covanalyzeargs = Get-VstsInput -Name covanalyzeargs
+	[string]$covcommitargs = Get-VstsInput -Name covcommitargs
+	[string]$cwd = Get-VstsInput -Name cwd -Require
+	[string]$customCheckers = Get-VstsInput -Name customCheckers
+	[string]$disabledCheckers = Get-VstsInput -Name disabledCheckers
+	[boolean]$allCheckers = Get-VstsInput -Name allCheckers -AsBool
+	[boolean]$webSecurityCheckers = Get-VstsInput -Name webSecurityCheckers -AsBool
+	[boolean]$webSecurityPreviewCheckers = Get-VstsInput -Name webSecurityPreviewCheckers -AsBool
+
+	# Source functions
+	. "$PSScriptRoot/Functions.ps1"
 
     # Set the working directory.
-    [string]$cwd = Get-VstsInput -Name cwd -Require
     Assert-VstsPath -LiteralPath $cwd -PathType Container
     Write-Verbose "Setting working directory to '$cwd'."
     Set-Location $cwd
 
 	$msbuildPath = .$PSScriptRoot\ps_modules\Resolve-MSBuild\Resolve-MSBuild.ps1
 	Write-Verbose "Found MsBuild at $msbuildPath"
-
 	Write-Verbose "Input variables"
 	Write-Verbose "Solution: $solution"
 	Write-Verbose "Platform: $platform"
@@ -37,17 +47,38 @@ try {
 	Write-Verbose "Intermediate: $intermediate"
 	Write-Verbose "Stream: $stream"
 
+	Write-Output "#################### COV-BUILD ######################"
+
 	$covBuildCmd = "$covBinPath/cov-build.exe"
 	Write-Verbose "Executing Cov-Build Command: $covBuildCmd"
-	& $covBuildCmd --append-log --dir $intermediate $msbuildPath $solution /p:SkipInvalidConfigurations=true /p:Configuration=$configuration /p:Platform=$platform /m
+	& $PSScriptRoot\EchoArgs.exe --append-log --dir $intermediate $msbuildPath $solution /p:SkipInvalidConfigurations=true /p:Configuration=$configuration /p:Platform=$platform $covbuildargs
+	& $covBuildCmd --append-log --dir $intermediate $msbuildPath $solution /p:SkipInvalidConfigurations=true /p:Configuration=$configuration /p:Platform=$platform $covbuildargs.Split(" ")
+
+	Write-Output "#################### COV-ANALYZE ####################"
+
+	# Generate checker argument strings
+	$enableCheckersArgs = Generate-Arguments "--enable" $customCheckers
+	$disableCheckersArgs = Generate-Arguments "--disable" $disabledCheckers
+	$allCheckersArgs = If ($allCheckers) { "--all" } Else { $null }
+	$webSecurityArgs = If ($webSecurityCheckers) { "--webapp-security" } Else { $null }
+	$webPreviewSecurityArgs = If ($webSecurityPreviewCheckers) { "--webapp-security-preview" } Else { $null }
+
+	# Putting it all together to avoid an insanely long argument list further down
+	$userOptions =  @($enableCheckersArgs, $disableCheckersArgs, $allCheckersArgs, $webSecurityArgs, $webPreviewSecurityArgs)
+	$userOptions = $userOptions | Where { -not [string]::IsNullOrWhiteSpace($_) }
+	$allArgs = "--dir $intermediate $userOptions --strip-path '$cwd' $covanalyzeargs"
 
 	$covAnalyzeCmd = "$covBinPath/cov-analyze.exe"
-	Write-Verbose "Executing Cov-Analyze Command: $covAnalyzeCmd"
-	& $covAnalyzeCmd --all --webapp-security --webapp-security-preview --enable XML_INJECTION --dir "$intermediate" --strip-path "$cwd"
+	Write-Verbose "Executing Cov-Analyze Command: $covAnalyzeCmd --dir '$intermediate' $extraAnalyzerArgs --strip-path '$cwd' $covanalyzeargs"
+	& $PSScriptRoot\EchoArgs.exe --dir $intermediate $extraAnalyzerArgs --strip-path "$cwd" $covanalyzeargs
+	& $covAnalyzeCmd --dir $intermediate $extraAnalyzerArgs --strip-path "$cwd" $covanalyzeargs.Split(" ")
+
+	Write-Output "#################### COV-DEFECTS ####################"
 
 	$covCommitCmd = "$covBinPath/cov-commit-defects.exe"
 	Write-Verbose "Excuting Cov-Commit-Defects Command: $covCommitCmd"
-	& $covCommitCmd  --dir "$intermediate" --stream "$stream" --auth-key-file "$authKeyFile" --host $hostname --port $port
+	& $PSScriptRoot\EchoArgs.exe --dir $intermediate --stream "$stream" --auth-key-file "$authKeyFile" --host $hostname --port $port $covcommitargs
+	& $covCommitCmd --dir $intermediate --stream "$stream" --auth-key-file "$authKeyFile" --host $hostname --port $port $covcommitargs.Split(" ")
 }
 finally
 {

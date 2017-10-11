@@ -4,10 +4,40 @@
   "friendlyName": "Coverity Build and Analysis",
   "description": "Tasks for building and analysing C# code using Coverity Static Analysis",
   "author": "Esben Bach",
-  "helpMarkDown": "Replace with markdown to show in help",
+  "helpMarkDown": "For source and readme go to the Github repo at https://github.com/esbenbach/coverity-vsts-task",
   "category": "Build",
   "visibility": [
     "Build"
+  ],
+  "runsOn": [
+    "Agent"
+  ],
+  "groups": [
+    {
+      "name": "build",
+      "displayName": "Build Configuration",
+      "isExpanded": true
+    },
+    {
+      "name": "coverityServer",
+      "displayName": "Coverity Server",
+      "isExpanded": true
+    },
+    {
+      "name": "coverityClient",
+      "displayName": "Coverity Client",
+      "isExpanded": true
+    },
+    {
+      "name": "analysisSettings",
+      "displayName": "Coverity Analysis Settings",
+      "isExpanded": false
+    },
+    {
+      "name": "advanced",
+      "displayName": "Advanced",
+      "isExpanded": false
+    }
   ],
   "demands": [],
   "version": {
@@ -16,7 +46,7 @@
     "Patch": "0"
   },
   "minimumAgentVersion": "1.95.0",
-  "instanceNameFormat": "CoverityBuild $(message)",
+  "instanceNameFormat": "Coverity Build and Analysis",
   "inputs": [
     {
       "name": "solution",
@@ -24,31 +54,26 @@
       "label": "Solution",
       "defaultValue": "",
       "required": true,
-      "helpMarkDown": "Relative path from repo root of the solution(s) or MSBuild project to run."
+      "helpMarkDown": "Relative path from repo root of the solution(s) or MSBuild project to run.",
+      "groupName": "build"
     },
     {
       "name": "configuration",
       "type": "string",
       "label": "Configuration",
-      "defaultValue": "",
+      "defaultValue": "$(BuildConfiguration)",
       "required": false,
-      "helpMarkDown": "Build configuration passed to msbuild"
+      "helpMarkDown": "Build configuration passed to msbuild",
+      "groupName": "build"
     },
     {
       "name": "platform",
       "type": "string",
       "label": "Platform",
-      "defaultValue": "",
+      "defaultValue": "$(BuildPlatform)",
       "required": false,
-      "helpMarkDown": "Build platform passed to msbuild"
-    },
-    {
-      "name": "cwd",
-      "type": "filePath",
-      "label": "Working Directory",
-      "defaultValue": "",
-      "required": false,
-      "helpMarkDown": "Current working directory where CoverityBuild is run."
+      "helpMarkDown": "Build platform passed to msbuild",
+      "groupName": "build"
     },
     {
       "name": "stream",
@@ -56,15 +81,17 @@
       "type": "string",
       "defaultValue": "",
       "required": true,
-      "helpMarkDown": "The name of the stream on the Coverity server where result will be published"
+      "helpMarkDown": "The name of the stream on the Coverity server where result will be published",
+      "groupName": "coverityServer"
     },
     {
       "name": "hostname",
       "label": "Hostname",
       "type": "string",
-      "defaultValue": "",
+      "defaultValue": "coverity.somehost.somedomain",
       "required": true,
-      "helpMarkDown": "The DNS name or IP of the host containing the Coverity service"
+      "helpMarkDown": "The DNS name or IP of the host containing the Coverity service",
+      "groupName": "coverityServer"
     },
     {
       "name": "portNumber",
@@ -72,7 +99,17 @@
       "type": "string",
       "defaultValue": "8443",
       "required": false,
-      "helpMarkDown": "The DNS name or IP of the host containing the Coverity service"
+      "helpMarkDown": "The DNS name or IP of the host containing the Coverity service",
+      "groupName": "coverityServer"
+    },
+    {
+      "name": "cwd",
+      "type": "filePath",
+      "label": "Working Directory",
+      "defaultValue": "",
+      "required": false,
+      "helpMarkDown": "Current working directory where cov-* utils are executed from.",
+      "groupName": "coverityClient"
     },
     {
       "name": "coverityBinPath",
@@ -80,14 +117,61 @@
       "type": "filePath",
       "defaultValue": "",
       "required": false,
-      "helpMarkDown": "Path to the coverity static analysis bin folder where cov-build etc resides. If left blank it is assumed the utilities are available in the path"
+      "helpMarkDown": "Path to the coverity static analysis bin folder where cov-build etc resides. If left blank it is assumed the utilities are available in the path",
+      "groupName": "coverityClient"
     },
     {
       "name": "authKeyFile",
       "type": "filePath",
       "label": "Coverity Authentication Key File",
       "required": false,
-      "helpMarkDown": "Path to the key file that allows the analysis to commit defects to the coverity server"
+      "helpMarkDown": "Path to the key file that allows the analysis to commit defects to the coverity server",
+      "groupName": "coverityClient"
+    },
+    {
+      "name": "allCheckers",
+      "type": "boolean",
+      "label": "Enable All Checkers",
+      "defaultValue": true,
+      "required": true,
+      "helpMarkDown": "If set the cov-analysis command will be executed using with the --all argument, refer to the docs for details",
+      "groupName": "analysisSettings"
+    },
+    {
+      "name": "webSecurityCheckers",
+      "type": "boolean",
+      "label": "Enable Web Security Checkers",
+      "defaultValue": true,
+      "required": true,
+      "helpMarkDown": "If set the cov-analysis command will be executed using with the --webapp-security argument, refer to the docs for details",
+      "groupName": "analysisSettings"
+    },
+    {
+      "name": "webSecurityPreviewCheckers",
+      "type": "boolean",
+      "label": "Enable Web Security Preview Checkers",
+      "defaultValue": false,
+      "required": true,
+      "helpMarkDown": "If set the cov-analysis command will be executed using with the -webapp-security-preview argument, refer to the docs for details",
+      "groupName": "analysisSettings"
+    },
+    {
+      "name": "customCheckers",
+      "type": "multiline",
+      "label": "Enable specific checkers",
+      "defaultValue": "",
+      "required": false,
+      "helpMarkDown": "Enter one or more checkers (delimited using newline) to be enabled using the --enable CHECKERNAME argument to cov-analysis, refer to the docs for details of available checkers",
+      "groupName": "analysisSettings"
+    },
+    {
+      "name": "disabledCheckers",
+      "type": "multiline",
+      "label": "Disable specific checkers",
+      "defaultValue": "",
+      "required": false,
+      "helpMarkDown": "Enter one or more checkers (delimited using newline) to be disabled using the --disable CHECKERNAME argument to cov-analysis, useful if you want to use all except a few checkers. Refer to the docs for details of available checkers",
+      "groupName": "analysisSettings"
     },
     {
       "name": "idir",
@@ -95,7 +179,8 @@
       "label": "Intermediate Directory",
       "defaultValue": "cov-intermediate",
       "required": false,
-      "helpMarkDown": "Directory to look for and place intermediate files, default to working directory/cov-intermediate"
+      "helpMarkDown": "Directory to look for and place intermediate files, default to working directory/cov-intermediate",
+      "groupName": "advanced"
     },
     {
       "name": "covbuildargs",
@@ -103,7 +188,8 @@
       "label": "Arguments for cov-build",
       "defaultValue": "",
       "required": false,
-      "helpMarkDOwn": "Additional arguments to pass to the cov-build command"
+      "helpMarkDOwn": "Additional arguments to pass to the cov-build command",
+      "groupName": "advanced"
     },
     {
       "name": "covanalyzeargs",
@@ -111,7 +197,8 @@
       "label": "Arguments for cov-analyze",
       "defaultValue": "",
       "required": false,
-      "helpMarkDOwn": "Additional arguments to pass to the cov-analyze command"
+      "helpMarkDOwn": "Additional arguments to pass to the cov-analyze command",
+      "groupName": "advanced"
     },
     {
       "name": "covcommitargs",
@@ -119,7 +206,8 @@
       "label": "Arguments for cov-commit-defects",
       "defaultValue": "",
       "required": false,
-      "helpMarkDOwn": "Additional arguments to pass to the cov-commit-defects command"
+      "helpMarkDOwn": "Additional arguments to pass to the cov-commit-defects command",
+      "groupName": "advanced"
     }
   ],
   "execution": {
