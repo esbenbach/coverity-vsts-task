@@ -47,3 +47,12 @@ function Generate-Arguments {
 	Write-Verbose "Returning $argument $output"
 	return "$argument $output"
 }
+
+function Exit-OnError()
+{
+	if ($? -ne 0)
+	{
+		Write-Host "Exiting because previous command failed."
+		exit $?
+	}
+}
