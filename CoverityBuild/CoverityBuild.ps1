@@ -54,6 +54,16 @@ try {
 	& $PSScriptRoot\EchoArgs.exe --append-log --dir $intermediate $msbuildPath $solution /p:SkipInvalidConfigurations=true /p:Configuration=$configuration /p:Platform=$platform $covbuildargs
 	& $covBuildCmd --append-log --dir $intermediate $msbuildPath $solution /p:SkipInvalidConfigurations=true /p:Configuration=$configuration /p:Platform=$platform $covbuildargs.Split(" ")
 
+	Exit-OnError
+
+	Write-Output "#################### COV-IMPORT-SCM ######################"
+	$covImportScmCmd = "$covBinPath/cov-import-scm.exe"
+	Write-Verbose "Executing Cov-ImportScm Command: $covImportScmCmd"
+	& $PSScriptRoot\EchoArgs.exe --dir $intermediate --scm git
+	& $covImportScmCmd --dir $intermediate --scm git
+
+	Exit-OnError
+
 	Write-Output "#################### COV-ANALYZE ####################"
 
 	# Generate checker argument strings
@@ -73,12 +83,16 @@ try {
 	& $PSScriptRoot\EchoArgs.exe --dir $intermediate $extraAnalyzerArgs --strip-path "$cwd" $covanalyzeargs
 	& $covAnalyzeCmd --dir $intermediate $extraAnalyzerArgs --strip-path "$cwd" $covanalyzeargs.Split(" ")
 
+	Exit-OnError
+
 	Write-Output "#################### COV-DEFECTS ####################"
 
 	$covCommitCmd = "$covBinPath/cov-commit-defects.exe"
 	Write-Verbose "Excuting Cov-Commit-Defects Command: $covCommitCmd"
 	& $PSScriptRoot\EchoArgs.exe --dir $intermediate --stream "$stream" --auth-key-file "$authKeyFile" --host $hostname --port $port $covcommitargs
 	& $covCommitCmd --dir $intermediate --stream "$stream" --auth-key-file "$authKeyFile" --host $hostname --port $port $covcommitargs.Split(" ")
+
+	Exit-OnError
 }
 finally
 {
