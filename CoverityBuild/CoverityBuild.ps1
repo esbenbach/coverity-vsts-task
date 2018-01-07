@@ -16,9 +16,12 @@ try {
 	[string]$authKeyFile = Get-VstsInput -Name authKeyFile
 	[string]$intermediate = Get-VstsInput -Name idir
 	[string]$stream = Get-VstsInput -Name stream
+	[boolean]$enableScmImport = Get-VstsInput -Name enableScmImport -AsBool
+	[string]$scmType = Get-VstsInput -Name scmType
 	[string]$covbuildargs = Get-VstsInput -Name covbuildargs
 	[string]$covanalyzeargs = Get-VstsInput -Name covanalyzeargs
 	[string]$covcommitargs = Get-VstsInput -Name covcommitargs
+	[string]$covscmargs = Get-VstsInput -Name covscmargs
 	[string]$cwd = Get-VstsInput -Name cwd -Require
 	[string]$customCheckers = Get-VstsInput -Name customCheckers
 	[string]$disabledCheckers = Get-VstsInput -Name disabledCheckers
@@ -56,13 +59,16 @@ try {
 
 	Exit-OnError
 
-	Write-Output "#################### COV-IMPORT-SCM ######################"
-	$covImportScmCmd = "$covBinPath/cov-import-scm.exe"
-	Write-Verbose "Executing Cov-ImportScm Command: $covImportScmCmd"
-	& $PSScriptRoot\EchoArgs.exe --dir $intermediate --scm git
-	& $covImportScmCmd --dir $intermediate --scm git
+	if ($enableScmImport)
+	{
+		Write-Output "#################### COV-IMPORT-SCM ######################"
+		$covImportScmCmd = "$covBinPath/cov-import-scm.exe"
+		Write-Verbose "Executing Cov-ImportScm Command: $covImportScmCmd"
+		& $PSScriptRoot\EchoArgs.exe --dir $intermediate --scm $scmType $covscmargs
+		& $covImportScmCmd --dir $intermediate --scm $scmType $covscmargs.Split(" ")
 
-	Exit-OnError
+		Exit-OnError
+	}
 
 	Write-Output "#################### COV-ANALYZE ####################"
 
