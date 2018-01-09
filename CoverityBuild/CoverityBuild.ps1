@@ -57,8 +57,6 @@ try {
 	& $PSScriptRoot\EchoArgs.exe --append-log --dir $intermediate $msbuildPath $solution /p:SkipInvalidConfigurations=true /p:Configuration=$configuration /p:Platform=$platform $covbuildargs
 	& $covBuildCmd --append-log --dir $intermediate $msbuildPath $solution /p:SkipInvalidConfigurations=true /p:Configuration=$configuration /p:Platform=$platform $covbuildargs.Split(" ")
 
-	Exit-OnError
-
 	if ($enableScmImport)
 	{
 		Write-Output "#################### COV-IMPORT-SCM ######################"
