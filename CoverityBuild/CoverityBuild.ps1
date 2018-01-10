@@ -28,6 +28,7 @@ try {
 	[boolean]$allCheckers = Get-VstsInput -Name allCheckers -AsBool
 	[boolean]$webSecurityCheckers = Get-VstsInput -Name webSecurityCheckers -AsBool
 	[boolean]$webSecurityPreviewCheckers = Get-VstsInput -Name webSecurityPreviewCheckers -AsBool
+	[boolean]$enableCallgraphMetrics = $TRUE
 
 	# Source functions
 	. "$PSScriptRoot/Functions.ps1"
@@ -76,6 +77,7 @@ try {
 	$allCheckersArgs = If ($allCheckers) { "--all" } Else { $null }
 	$webSecurityArgs = If ($webSecurityCheckers) { "--webapp-security" } Else { $null }
 	$webPreviewSecurityArgs = If ($webSecurityPreviewCheckers) { "--webapp-security-preview" } Else { $null }
+	$callgraphMetrics = If ($enableCallgraphMetrics) {"--enable-callgraph-metrics" } Else { $null }
 
 	# Putting it all together to avoid an insanely long argument list further down
 	$userOptions =  @($enableCheckersArgs, $disableCheckersArgs, $allCheckersArgs, $webSecurityArgs, $webPreviewSecurityArgs)
