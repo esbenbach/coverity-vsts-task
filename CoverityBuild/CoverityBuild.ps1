@@ -16,15 +16,20 @@ try {
 	[string]$authKeyFile = Get-VstsInput -Name authKeyFile
 	[string]$intermediate = Get-VstsInput -Name idir
 	[string]$stream = Get-VstsInput -Name stream
+	[boolean]$enableScmImport = Get-VstsInput -Name enableScmImport -AsBool
+	[string]$scmType = Get-VstsInput -Name scmType
 	[string]$covbuildargs = Get-VstsInput -Name covbuildargs
 	[string]$covanalyzeargs = Get-VstsInput -Name covanalyzeargs
 	[string]$covcommitargs = Get-VstsInput -Name covcommitargs
+	[string]$covscmargs = Get-VstsInput -Name covscmargs
 	[string]$cwd = Get-VstsInput -Name cwd -Require
 	[string]$customCheckers = Get-VstsInput -Name customCheckers
 	[string]$disabledCheckers = Get-VstsInput -Name disabledCheckers
 	[boolean]$allCheckers = Get-VstsInput -Name allCheckers -AsBool
 	[boolean]$webSecurityCheckers = Get-VstsInput -Name webSecurityCheckers -AsBool
 	[boolean]$webSecurityPreviewCheckers = Get-VstsInput -Name webSecurityPreviewCheckers -AsBool
+	[boolean]$enableCallgraphMetrics = $TRUE
+	[boolean]$enableTestMetrics = $TRUE
 
 	# Source functions
 	. "$PSScriptRoot/Functions.ps1"
@@ -54,15 +59,16 @@ try {
 	& $PSScriptRoot\EchoArgs.exe --append-log --dir $intermediate $msbuildPath $solution /p:SkipInvalidConfigurations=true /p:Configuration=$configuration /p:Platform=$platform $covbuildargs
 	& $covBuildCmd --append-log --dir $intermediate $msbuildPath $solution /p:SkipInvalidConfigurations=true /p:Configuration=$configuration /p:Platform=$platform $covbuildargs.Split(" ")
 
-	Exit-OnError
+	if ($enableScmImport)
+	{
+		Write-Output "#################### COV-IMPORT-SCM ######################"
+		$covImportScmCmd = "$covBinPath/cov-import-scm.exe"
+		Write-Verbose "Executing Cov-ImportScm Command: $covImportScmCmd"
+		& $PSScriptRoot\EchoArgs.exe --dir $intermediate --scm $scmType $covscmargs
+		& $covImportScmCmd --dir $intermediate --scm $scmType $covscmargs.Split(" ")
 
-	Write-Output "#################### COV-IMPORT-SCM ######################"
-	$covImportScmCmd = "$covBinPath/cov-import-scm.exe"
-	Write-Verbose "Executing Cov-ImportScm Command: $covImportScmCmd"
-	& $PSScriptRoot\EchoArgs.exe --dir $intermediate --scm git
-	& $covImportScmCmd --dir $intermediate --scm git
-
-	Exit-OnError
+		#Exit-OnError
+	}
 
 	Write-Output "#################### COV-ANALYZE ####################"
 
@@ -72,9 +78,11 @@ try {
 	$allCheckersArgs = If ($allCheckers) { "--all" } Else { $null }
 	$webSecurityArgs = If ($webSecurityCheckers) { "--webapp-security" } Else { $null }
 	$webPreviewSecurityArgs = If ($webSecurityPreviewCheckers) { "--webapp-security-preview" } Else { $null }
+	$callgraphMetrics = If ($enableCallgraphMetrics) {"--enable-callgraph-metrics" } Else { $null }
+	$testMetrics = If ($enableTestMetrics) {"--enable-test-metrics" } Else { $null }
 
 	# Putting it all together to avoid an insanely long argument list further down
-	$userOptions =  @($enableCheckersArgs, $disableCheckersArgs, $allCheckersArgs, $webSecurityArgs, $webPreviewSecurityArgs)
+	$userOptions =  @($enableCheckersArgs, $disableCheckersArgs, $allCheckersArgs, $webSecurityArgs, $webPreviewSecurityArgs, $callgraphMetrics, $testMetrics)
 	$userOptions = $userOptions | Where { -not [string]::IsNullOrWhiteSpace($_) }
 	$allArgs = "--dir $intermediate $userOptions --strip-path '$cwd' $covanalyzeargs"
 
@@ -83,7 +91,7 @@ try {
 	& $PSScriptRoot\EchoArgs.exe --dir $intermediate $extraAnalyzerArgs --strip-path "$cwd" $covanalyzeargs
 	& $covAnalyzeCmd --dir $intermediate $extraAnalyzerArgs --strip-path "$cwd" $covanalyzeargs.Split(" ")
 
-	Exit-OnError
+	#Exit-OnError
 
 	Write-Output "#################### COV-DEFECTS ####################"
 
@@ -92,7 +100,7 @@ try {
 	& $PSScriptRoot\EchoArgs.exe --dir $intermediate --stream "$stream" --auth-key-file "$authKeyFile" --host $hostname --port $port $covcommitargs
 	& $covCommitCmd --dir $intermediate --stream "$stream" --auth-key-file "$authKeyFile" --host $hostname --port $port $covcommitargs.Split(" ")
 
-	Exit-OnError
+	#Exit-OnError
 }
 finally
 {

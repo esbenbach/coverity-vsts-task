@@ -52,7 +52,7 @@ function Exit-OnError()
 {
 	if ($? -ne 0)
 	{
-		Write-Host "Exiting because previous command failed."
+		Write-Error "Exiting because previous command failed."
 		exit $?
 	}
 }
