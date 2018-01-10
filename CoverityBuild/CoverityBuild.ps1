@@ -65,7 +65,7 @@ try {
 		& $PSScriptRoot\EchoArgs.exe --dir $intermediate --scm $scmType $covscmargs
 		& $covImportScmCmd --dir $intermediate --scm $scmType $covscmargs.Split(" ")
 
-		Exit-OnError
+		#Exit-OnError
 	}
 
 	Write-Output "#################### COV-ANALYZE ####################"
@@ -87,7 +87,7 @@ try {
 	& $PSScriptRoot\EchoArgs.exe --dir $intermediate $extraAnalyzerArgs --strip-path "$cwd" $covanalyzeargs
 	& $covAnalyzeCmd --dir $intermediate $extraAnalyzerArgs --strip-path "$cwd" $covanalyzeargs.Split(" ")
 
-	Exit-OnError
+	#Exit-OnError
 
 	Write-Output "#################### COV-DEFECTS ####################"
 
@@ -96,7 +96,7 @@ try {
 	& $PSScriptRoot\EchoArgs.exe --dir $intermediate --stream "$stream" --auth-key-file "$authKeyFile" --host $hostname --port $port $covcommitargs
 	& $covCommitCmd --dir $intermediate --stream "$stream" --auth-key-file "$authKeyFile" --host $hostname --port $port $covcommitargs.Split(" ")
 
-	Exit-OnError
+	#Exit-OnError
 }
 finally
 {
