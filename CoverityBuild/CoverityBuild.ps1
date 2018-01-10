@@ -29,6 +29,7 @@ try {
 	[boolean]$webSecurityCheckers = Get-VstsInput -Name webSecurityCheckers -AsBool
 	[boolean]$webSecurityPreviewCheckers = Get-VstsInput -Name webSecurityPreviewCheckers -AsBool
 	[boolean]$enableCallgraphMetrics = $TRUE
+	[boolean]$enableTestMetrics = $TRUE
 
 	# Source functions
 	. "$PSScriptRoot/Functions.ps1"
@@ -78,9 +79,10 @@ try {
 	$webSecurityArgs = If ($webSecurityCheckers) { "--webapp-security" } Else { $null }
 	$webPreviewSecurityArgs = If ($webSecurityPreviewCheckers) { "--webapp-security-preview" } Else { $null }
 	$callgraphMetrics = If ($enableCallgraphMetrics) {"--enable-callgraph-metrics" } Else { $null }
+	$testMetrics = If ($enableTestMetrics) {"--enable-test-metrics" } Else { $null }
 
 	# Putting it all together to avoid an insanely long argument list further down
-	$userOptions =  @($enableCheckersArgs, $disableCheckersArgs, $allCheckersArgs, $webSecurityArgs, $webPreviewSecurityArgs)
+	$userOptions =  @($enableCheckersArgs, $disableCheckersArgs, $allCheckersArgs, $webSecurityArgs, $webPreviewSecurityArgs, $callgraphMetrics, $testMetrics)
 	$userOptions = $userOptions | Where { -not [string]::IsNullOrWhiteSpace($_) }
 	$allArgs = "--dir $intermediate $userOptions --strip-path '$cwd' $covanalyzeargs"
 
