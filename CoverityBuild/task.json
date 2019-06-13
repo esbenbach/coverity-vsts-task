@@ -47,8 +47,8 @@
   "demands": [],
   "version": {
     "Major": "1",
-    "Minor": "2",
-    "Patch": "0"
+    "Minor": "3",
+    "Patch": "15"
   },
   "minimumAgentVersion": "1.95.0",
   "instanceNameFormat": "Coverity Build and Analysis",
@@ -78,6 +78,15 @@
       "defaultValue": "$(BuildPlatform)",
       "required": false,
       "helpMarkDown": "Build platform passed to msbuild",
+      "groupName": "build"
+    },
+    {
+      "name": "sourceSearchPath",
+      "type": "string",
+      "label": "Source Search Path",
+      "defaultValue": "",
+      "required": false,
+      "helpMarkDown": "Optional path for searching for source files such as *.js files",
       "groupName": "build"
     },
     {

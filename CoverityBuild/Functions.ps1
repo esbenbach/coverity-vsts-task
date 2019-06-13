@@ -24,18 +24,16 @@ Would output "--echo This --echo Is --echo Awesome"
 function Generate-Arguments {
 	[CmdletBinding()]
     param(
-         [Parameter(Mandatory = $true)]
-        [string]$argument,
-        [Parameter(Mandatory = $false)]
-        [string]$input = "")
+        [Parameter(Mandatory = $true)][string]$argument,
+        [Parameter(Mandatory = $false)][string]$inputArgs)
 
-	if (-not $input)
+	if (-not $inputArgs)
 	{
 		Write-Verbose "No input given for $argument returning null"
 		return $null
 	}
 
-	$splitInput = "$input".Replace("`r`n", "`n").Split("`n")
+	$splitInput = "$inputArgs".Replace("`r`n", "`n").Split("`n")
 
 	If ($splitInput.Count -eq 0)
 	{
