@@ -34,6 +34,11 @@
       "isExpanded": false
     },
     {
+      "name": "scmSettings",
+      "displayName": "Source Control Settings",
+      "isExpanded": false
+    },
+    {
       "name": "advanced",
       "displayName": "Advanced",
       "isExpanded": false
@@ -42,8 +47,8 @@
   "demands": [],
   "version": {
     "Major": "1",
-    "Minor": "1",
-    "Patch": "0"
+    "Minor": "3",
+    "Patch": "15"
   },
   "minimumAgentVersion": "1.95.0",
   "instanceNameFormat": "Coverity Build and Analysis",
@@ -73,6 +78,15 @@
       "defaultValue": "$(BuildPlatform)",
       "required": false,
       "helpMarkDown": "Build platform passed to msbuild",
+      "groupName": "build"
+    },
+    {
+      "name": "sourceSearchPath",
+      "type": "string",
+      "label": "Source Search Path",
+      "defaultValue": "",
+      "required": false,
+      "helpMarkDown": "Optional path for searching for source files such as *.js files",
       "groupName": "build"
     },
     {
@@ -174,6 +188,24 @@
       "groupName": "analysisSettings"
     },
     {
+      "name": "enableScmImport",
+      "type": "boolean",
+      "label": "Enable SCM Annotation import for ownership assignment",
+      "defaultvalue": true,
+      "required": false,
+      "helpMarkDown": "If enabled an attempt wll be made to import source control annotation when assigning defect owner using cov-import-scm",
+      "groupName": "scmSettings"
+    },
+    {
+      "name": "scmType",
+      "type": "string",
+      "label": "Source Control Management System",
+      "defaultValue": "git",
+      "required": false,
+      "helpMarkDown": "Source Control Management System that cov-import-scm should use, typically git, svn, tfs etc. Refer to the coverity manual for possible options.",
+      "groupName": "scmSettings"
+    },
+    {
       "name": "idir",
       "type": "filePath",
       "label": "Intermediate Directory",
@@ -184,7 +216,7 @@
     },
     {
       "name": "covbuildargs",
-      "type": "cov-build arguments",
+      "type": "string",
       "label": "Arguments for cov-build",
       "defaultValue": "",
       "required": false,
@@ -193,7 +225,7 @@
     },
     {
       "name": "covanalyzeargs",
-      "type": "cov-analyze arguments",
+      "type": "string",
       "label": "Arguments for cov-analyze",
       "defaultValue": "",
       "required": false,
@@ -202,11 +234,20 @@
     },
     {
       "name": "covcommitargs",
-      "type": "cov-commit-defects arguments",
+      "type": "string",
       "label": "Arguments for cov-commit-defects",
       "defaultValue": "",
       "required": false,
       "helpMarkDOwn": "Additional arguments to pass to the cov-commit-defects command",
+      "groupName": "advanced"
+    },
+    {
+      "name": "covscmargs",
+      "type": "string",
+      "label": "Arguments for cov-import-scm",
+      "defaultValue": "",
+      "required": false,
+      "helpMarkDOwn": "Additional arguments to pass to the cov-import-scm command, the default arguments contains the scm type and the intermediate dir.",
       "groupName": "advanced"
     }
   ],
