@@ -48,7 +48,7 @@
   "version": {
     "Major": "1",
     "Minor": "3",
-    "Patch": "16"
+    "Patch": "17"
   },
   "minimumAgentVersion": "1.95.0",
   "instanceNameFormat": "Coverity Build and Analysis",
