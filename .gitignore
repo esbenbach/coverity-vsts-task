@@ -1,4 +1,37 @@
-﻿/.vs/coverity-vsts-task/v15/.suo
-/.vs/CoverityBuild/v15/.suo
-/.vs
+﻿*.user
+/.vscode
+
+# User-specific files
+*.suo
 *.user
+*.userosscache
+*.sln.docstates
+
+# User-specific files (MonoDevelop/Xamarin Studio)
+*.userprefs
+
+# Build results
+[Dd]ebug/
+[Dd]ebugPublic/
+[Rr]elease/
+[Rr]eleases/
+x64/
+x86/
+bld/
+[Bb]in/
+[Oo]bj/
+[Ll]og/
+
+# Visual Studio 2015 cache/options directory
+.vs/
+# Uncomment if you have tasks that create the project's static files in wwwroot
+wwwroot/
+
+# Coverity Metadata
+.cov/
+
+# Visual Studio profiler
+*.psess
+*.vsp
+*.vspx
+*.sap
