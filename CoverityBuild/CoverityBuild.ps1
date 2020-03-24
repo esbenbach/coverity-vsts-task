@@ -54,7 +54,7 @@ try {
 	Write-Verbose "Stream: $stream"
 	Write-Verbose "CaptureSearchPath : $captureSearchPath";
 	
-	$captureFS = $null;
+	$captureFS = "";
 	if ($captureSearchPath)
 	{
 		$captureFS = Generate-Arguments "--fs-capture-search" $captureSearchPath
