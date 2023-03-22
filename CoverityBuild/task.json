@@ -47,8 +47,8 @@
   "demands": [],
   "version": {
     "Major": "1",
-    "Minor": "3",
-    "Patch": "17"
+    "Minor": "4",
+    "Patch": "4"
   },
   "minimumAgentVersion": "1.95.0",
   "instanceNameFormat": "Coverity Build and Analysis",
@@ -87,6 +87,33 @@
       "defaultValue": "",
       "required": false,
       "helpMarkDown": "Optional path for searching for source files such as *.js files",
+      "groupName": "build"
+    },
+    {
+      "name": "VSVersion",
+      "type": "string",
+      "label": "Visual Studio Version",
+      "defaultValue": "",
+      "required": false,
+      "helpMarkDown": "Optional value to define the visual studio version during build, if left empty, the version will be determined automatically",
+      "groupName": "build"
+    },
+    {
+      "name": "useDotnetBuild",
+      "type": "boolean",
+      "label": "Use dotnet cli",
+      "defaultValue": false,
+      "required": false,
+      "helpMarkDown": "Use dotnet commandline for building instead of msbuild/visual studio directly",
+      "groupName": "build"
+    },
+    {
+      "name": "parallelBuild",
+      "type": "boolean",
+      "label": "Parallel Build",
+      "defaultValue": false,
+      "required": false,
+      "helpMarkDown": "Build solution in parallel, this may conflict with coverity analysis in some cases",
       "groupName": "build"
     },
     {
@@ -158,15 +185,6 @@
       "defaultValue": true,
       "required": true,
       "helpMarkDown": "If set the cov-analysis command will be executed using with the --webapp-security argument, refer to the docs for details",
-      "groupName": "analysisSettings"
-    },
-    {
-      "name": "webSecurityPreviewCheckers",
-      "type": "boolean",
-      "label": "Enable Web Security Preview Checkers",
-      "defaultValue": false,
-      "required": true,
-      "helpMarkDown": "If set the cov-analysis command will be executed using with the -webapp-security-preview argument, refer to the docs for details",
       "groupName": "analysisSettings"
     },
     {

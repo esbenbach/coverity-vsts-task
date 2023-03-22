@@ -26,11 +26,12 @@ try {
 	[string]$cwd = Get-VstsInput -Name cwd -Require
 	[string]$customCheckers = Get-VstsInput -Name customCheckers
 	[string]$disabledCheckers = Get-VstsInput -Name disabledCheckers
+	[string]$VSVersion = Get-VstsInput -Name VSVersion
 	[boolean]$allCheckers = Get-VstsInput -Name allCheckers -AsBool
 	[boolean]$webSecurityCheckers = Get-VstsInput -Name webSecurityCheckers -AsBool
-	[boolean]$webSecurityPreviewCheckers = Get-VstsInput -Name webSecurityPreviewCheckers -AsBool
 	[boolean]$enableCallgraphMetrics = $TRUE
-	[boolean]$enableTestMetrics = $FALSE
+	[boolean]$enableParallelBuild = Get-VstsInput -Name parallelBuild -AsBool
+	[boolean]$useDotNetBuild = Get-VstsInput -Name useDotnetBuild -AsBool
 
 	# Source functions
 	. "$PSScriptRoot/Functions.ps1"
@@ -40,8 +41,23 @@ try {
     Write-Verbose "Setting working directory to '$cwd'."
     Set-Location $cwd
 
-	$msbuildPath = .$PSScriptRoot\ps_modules\Resolve-MSBuild\Resolve-MSBuild.ps1
-	Write-Verbose "Found MsBuild at $msbuildPath"
+	if ($useDotNetBuild)
+	{
+		$msbuildPath = "dotnet msbuild"
+	}
+	else
+	{
+		if ($VSVersion)
+		{
+			$msbuildPath = .$PSScriptRoot\ps_modules\Resolve-MSBuild\Resolve-MSBuild.ps1 -Version $VSVersion
+		}
+		else
+		{
+			$msbuildPath = .$PSScriptRoot\ps_modules\Resolve-MSBuild\Resolve-MSBuild.ps1
+		}
+	}
+	
+	Write-Verbose "Using Build Command $msbuildPath"
 	Write-Verbose "Input variables"
 	Write-Verbose "Solution: $solution"
 	Write-Verbose "Platform: $platform"
@@ -63,10 +79,12 @@ try {
 
 	Write-Output "#################### COV-BUILD ######################"
 
+	$parallelBuild = If ($enableParallelBuild) {"-m" } Else { $null }
+
 	$covBuildCmd = "$covBinPath/cov-build.exe"
 	Write-Verbose "Executing Cov-Build Command: $covBuildCmd"
-	& $PSScriptRoot\EchoArgs.exe --append-log --dir $intermediate $captureFS.Split(" ") $msbuildPath $solution /p:SkipInvalidConfigurations=true /p:Configuration=$configuration /p:Platform=$platform $covbuildargs
-	& $covBuildCmd --append-log --dir $intermediate $captureFS.Split(" ") $msbuildPath $solution /p:SkipInvalidConfigurations=true /p:Configuration=$configuration /p:Platform=$platform $covbuildargs.Split(" ")
+	& $PSScriptRoot\EchoArgs.exe --append-log --dir $intermediate $captureFS.Split(" ") $msbuildPath $solution /p:SkipInvalidConfigurations=true /p:Configuration=$configuration /p:Platform=$platform $parallelBuild $covbuildargs
+	& $covBuildCmd --append-log --dir $intermediate $captureFS.Split(" ") $msbuildPath $solution  /p:SkipInvalidConfigurations=true /p:Configuration=$configuration /p:Platform=$platform $parallelBuild $covbuildargs.Split(" ")
 
 	if ($enableScmImport)
 	{
@@ -83,17 +101,17 @@ try {
 
 	# Generate checker argument strings - this is rather convoluted due to the fact that I can't make heads or tails in how Powershell handles arguments
 	$enableCheckersArgs = Generate-Arguments "--enable" $customCheckers
-	$enableCheckersArgs = If ($enableCheckersArgs) { $enableCheckersArgs.Split(" ") } Else { $null }
+	$enableCheckersArgs = If ($customCheckers) { $enableCheckersArgs.Split(" ") } Else { $null }
 	$disableCheckersArgs = Generate-Arguments "--disable" $disabledCheckers
-	$disableCheckersArgs = If ($disableCheckersArgs) { $disableCheckersArgs.Split(" ") } Else { $null }
+	$disableCheckersArgs = If ($disabledCheckers) { $disableCheckersArgs.Split(" ") } Else { $null }
 	$allCheckersArgs = If ($allCheckers) { "--all" } Else { $null }
 	$webSecurityArgs = If ($webSecurityCheckers) { "--webapp-security" } Else { $null }
-	$webPreviewSecurityArgs = If ($webSecurityPreviewCheckers) { "--webapp-security-preview" } Else { $null }
 	$callgraphMetrics = If ($enableCallgraphMetrics) {"--enable-callgraph-metrics" } Else { $null }
-	$testMetrics = If ($enableTestMetrics) {"--enable-test-metrics" } Else { $null }
+	
+	# --enable-constraint-fpp --
 
 	# Putting it all together to avoid an insanely long argument list further down
-	$userOptions =  @($allCheckersArgs, $webSecurityArgs, $webPreviewSecurityArgs, $callgraphMetrics, $testMetrics, "--enable-jshint", "--report-in-minified-js") + $enableCheckersArgs + $disableCheckersArgs
+	$userOptions =  @($allCheckersArgs, $webSecurityArgs, $callgraphMetrics, "--enable-jshint", "--report-in-minified-js") + $enableCheckersArgs + $disableCheckersArgs
 	$userOptions = $userOptions | Where-Object { -not [string]::IsNullOrWhiteSpace($_) }
 
 	$covAnalyzeCmd = "$covBinPath/cov-analyze.exe"
@@ -107,8 +125,8 @@ try {
 
 	$covCommitCmd = "$covBinPath/cov-commit-defects.exe"
 	Write-Verbose "Excuting Cov-Commit-Defects Command: $covCommitCmd"
-	& $PSScriptRoot\EchoArgs.exe --dir $intermediate --stream "$stream" --auth-key-file "$authKeyFile" --host $hostname --port $port $covcommitargs
-	& $covCommitCmd --dir $intermediate --stream "$stream" --auth-key-file "$authKeyFile" --host $hostname --port $port $covcommitargs.Split(" ")
+	& $PSScriptRoot\EchoArgs.exe --dir $intermediate --stream "$stream" --auth-key-file "$authKeyFile" --url "http://${hostname}:$port" $covcommitargs
+	& $covCommitCmd --dir $intermediate --stream "$stream" --auth-key-file "$authKeyFile" --url "http://${hostname}:$port" $covcommitargs.Split(" ")
 
 	#Exit-OnError
 }

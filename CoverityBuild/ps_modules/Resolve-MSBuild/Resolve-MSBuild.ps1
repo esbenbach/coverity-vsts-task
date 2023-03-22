@@ -146,7 +146,7 @@ function Get-MSBuild15Guess {
 
 	$folders = $(
 		if ($Prerelease) {'Preview'}
-		elseif ($Version -eq '*') {'2019', '2017'}
+		elseif ($Version -eq '*') {'2022', '2019', '2017'}
 		elseif ($Version -eq '16.0') {'2019'}
 		else {'2017'}
 	)
