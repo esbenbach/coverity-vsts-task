@@ -11,8 +11,7 @@ try {
 	[string]$captureSearchPath = Get-VstsInput -Name sourceSearchPath
     [string]$platform = Get-VstsInput -Name Platform
     [string]$configuration = Get-VstsInput -Name Configuration
-	[string]$hostname = Get-VstsInput -Name hostname
-	[string]$port = Get-VstsInput -Name portNumber
+	[string]$url = Get-VstsInput -Name url
 	[string]$covBinPath = Get-VstsInput -Name coverityBinPath
 	[string]$authKeyFile = Get-VstsInput -Name authKeyFile
 	[string]$intermediate = Get-VstsInput -Name idir
@@ -62,8 +61,7 @@ try {
 	Write-Verbose "Solution: $solution"
 	Write-Verbose "Platform: $platform"
 	Write-Verbose "Configuration: $configuration"
-	Write-Verbose "Host: $hostname"
-	Write-Verbose "Port: $port"
+	Write-Verbose "Url: $url"
 	Write-Verbose "Cov Bin Path: $covBinPath"
 	Write-Verbose "AuthKey: $authKeyFile"
 	Write-Verbose "Intermediate: $intermediate"
@@ -125,8 +123,8 @@ try {
 
 	$covCommitCmd = "$covBinPath/cov-commit-defects.exe"
 	Write-Verbose "Excuting Cov-Commit-Defects Command: $covCommitCmd"
-	& $PSScriptRoot\EchoArgs.exe --dir $intermediate --stream "$stream" --auth-key-file "$authKeyFile" --url "http://${hostname}:$port" $covcommitargs
-	& $covCommitCmd --dir $intermediate --stream "$stream" --auth-key-file "$authKeyFile" --url "http://${hostname}:$port" $covcommitargs.Split(" ")
+	& $PSScriptRoot\EchoArgs.exe --dir $intermediate --stream "$stream" --auth-key-file "$authKeyFile" --url "${url}" $covcommitargs
+	& $covCommitCmd --dir $intermediate --stream "$stream" --auth-key-file "$authKeyFile" --url "${url}" $covcommitargs.Split(" ")
 
 	#Exit-OnError
 }
