@@ -47,8 +47,8 @@
   "demands": [],
   "version": {
     "Major": "1",
-    "Minor": "4",
-    "Patch": "4"
+    "Minor": "5",
+    "Patch": "0"
   },
   "minimumAgentVersion": "1.95.0",
   "instanceNameFormat": "Coverity Build and Analysis",
@@ -126,21 +126,12 @@
       "groupName": "coverityServer"
     },
     {
-      "name": "hostname",
-      "label": "Hostname",
+      "name": "url",
+      "label": "Url",
       "type": "string",
-      "defaultValue": "coverity.somehost.somedomain",
+      "defaultValue": "https://coverity.somehost.somedomain",
       "required": true,
-      "helpMarkDown": "The DNS name or IP of the host containing the Coverity service",
-      "groupName": "coverityServer"
-    },
-    {
-      "name": "portNumber",
-      "label": " Portnumber",
-      "type": "string",
-      "defaultValue": "8443",
-      "required": false,
-      "helpMarkDown": "The DNS name or IP of the host containing the Coverity service",
+      "helpMarkDown": "The fully qualified URL for the Coverity Connect service",
       "groupName": "coverityServer"
     },
     {
