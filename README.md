@@ -1,4 +1,6 @@
-# **Notice**: Synopsys now provides an official extension (https://marketplace.visualstudio.com/items?itemName=synopsys-coverity.synopsys-coverity-azure-devops) which is LIKELY better than this one I made. We still use this one extensively, but will probably move away from it after a while. 
+# Archived
+
+**Notice**: Synopsys now provides an official extension (https://marketplace.visualstudio.com/items?itemName=synopsys-coverity.synopsys-coverity-azure-devops) which is LIKELY better than this one I made. We still use this one extensively, but will probably move away from it after a while. 
 
 # Coverity Azure DevOps Build Task
 
